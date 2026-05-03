@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ecommerce_db
+    restart: always
+    environment:
+      POSTGRES_DB: ecommerce_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres@L0calAdmin1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/src/config/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  db_test:
+    image: postgres:16-alpine
+    container_name: ecommerce_test_db
+    restart: always
+    environment:
+      POSTGRES_DB: ecommerce_test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+
+  backend:
+    build: ./backend
+    container_name: ecommerce_backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ecommerce_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres@L0calAdmin1234
+      JWT_SECRET: supersecret_change_me_in_production
+      JWT_EXPIRES_IN: 7d
+    command: >
+      sh -c "node src/config/seed.js && node src/app.js"
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    container_name: ecommerce_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  pgdata:
