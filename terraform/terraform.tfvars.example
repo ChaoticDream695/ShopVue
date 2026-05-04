@@ -1,0 +1,31 @@
+# terraform/terraform.tfvars.example
+# Copy to terraform.tfvars and fill in your values.
+# NEVER commit terraform.tfvars to git — it contains secrets!
+
+aws_region  = "eu-west-1"
+project     = "shopvue"
+environment = "production"
+
+# Networking
+vpc_cidr             = "10.0.0.0/16"
+availability_zones   = ["eu-west-1a", "eu-west-1b"]
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.11.0/24", "10.0.12.0/24"]
+
+# ECS sizing (increase for production load)
+backend_cpu            = 256
+backend_memory         = 512
+frontend_cpu           = 256
+frontend_memory        = 512
+backend_desired_count  = 2
+frontend_desired_count = 2
+
+# RDS
+db_instance_class    = "db.t3.micro"
+db_name              = "ecommerce_db"
+db_username          = "postgres"
+db_password          = "CHANGE_ME_strong_password_here"
+db_allocated_storage = 20
+
+# App secrets
+jwt_secret = "CHANGE_ME_very_long_random_string_at_least_32_chars"

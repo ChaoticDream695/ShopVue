@@ -1,0 +1,17 @@
+# Local Terraform state (use remote S3 backend in production)
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.d/
+
+# Variable files with secrets — NEVER commit these
+terraform.tfvars
+*.auto.tfvars
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Plan output files
+*.tfplan
