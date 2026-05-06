@@ -34,7 +34,7 @@ resource "aws_cloudwatch_log_group" "frontend" {
   retention_in_days = 30
 }
 
-# ── Security Group for ECS tasks ───────────────────────────────────────────────
+# ── Security Groups ────────────────────────────────────────────────────────────
 resource "aws_security_group" "backend" {
   name        = "${var.project}-${var.environment}-backend-sg"
   description = "Allow traffic from ALB to backend tasks"
@@ -109,6 +109,7 @@ resource "aws_ecs_task_definition" "backend" {
       { name = "DB_PORT",        value = "5432" },
       { name = "DB_NAME",        value = var.db_name },
       { name = "DB_USER",        value = var.db_username },
+      { name = "DB_SSL",         value = "true" },
       { name = "JWT_EXPIRES_IN", value = "7d" },
     ]
 
@@ -165,6 +166,13 @@ resource "aws_ecs_task_definition" "frontend" {
       protocol      = "tcp"
     }]
 
+    environment = [
+      {
+        name  = "BACKEND_URL"
+        value = "http://${var.alb_dns_name}"
+      }
+    ]
+
     logConfiguration = {
       logDriver = "awslogs"
       options = {
@@ -188,11 +196,12 @@ resource "aws_ecs_task_definition" "frontend" {
 
 # ── Backend ECS Service ────────────────────────────────────────────────────────
 resource "aws_ecs_service" "backend" {
-  name            = "${var.project}-${var.environment}-backend"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.backend.arn
-  desired_count   = var.backend_desired_count
-  launch_type     = "FARGATE"
+  name                   = "${var.project}-${var.environment}-backend"
+  cluster                = aws_ecs_cluster.main.id
+  task_definition        = aws_ecs_task_definition.backend.arn
+  desired_count          = var.backend_desired_count
+  launch_type            = "FARGATE"
+  enable_execute_command = true
 
   network_configuration {
     subnets          = var.private_subnet_ids
@@ -206,33 +215,29 @@ resource "aws_ecs_service" "backend" {
     container_port   = var.backend_port
   }
 
-  deployment_configuration {
-    minimum_healthy_percent = 50
-    maximum_percent         = 200
-  }
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
 
   deployment_circuit_breaker {
     enable   = true
     rollback = true
   }
 
-  # Ignore task definition changes for CI/CD deployments
   lifecycle {
     ignore_changes = [task_definition, desired_count]
   }
-
-  depends_on = [var.alb_backend_target_group_arn]
 
   tags = { Name = "${var.project}-${var.environment}-backend-svc" }
 }
 
 # ── Frontend ECS Service ───────────────────────────────────────────────────────
 resource "aws_ecs_service" "frontend" {
-  name            = "${var.project}-${var.environment}-frontend"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.frontend.arn
-  desired_count   = var.frontend_desired_count
-  launch_type     = "FARGATE"
+  name                   = "${var.project}-${var.environment}-frontend"
+  cluster                = aws_ecs_cluster.main.id
+  task_definition        = aws_ecs_task_definition.frontend.arn
+  desired_count          = var.frontend_desired_count
+  launch_type            = "FARGATE"
+  enable_execute_command = true
 
   network_configuration {
     subnets          = var.private_subnet_ids
@@ -246,10 +251,8 @@ resource "aws_ecs_service" "frontend" {
     container_port   = var.frontend_port
   }
 
-  deployment_configuration {
-    minimum_healthy_percent = 50
-    maximum_percent         = 200
-  }
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
 
   deployment_circuit_breaker {
     enable   = true
@@ -280,7 +283,7 @@ resource "aws_appautoscaling_policy" "backend_cpu" {
   service_namespace  = aws_appautoscaling_target.backend.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value       = 70.0 # scale when CPU > 70%
+    target_value       = 70.0
     scale_in_cooldown  = 300
     scale_out_cooldown = 60
 

@@ -12,13 +12,13 @@ terraform {
   # ── Remote state (recommended) ────────────────────────────────────────────
   # Uncomment and fill in after creating the S3 bucket + DynamoDB table.
   #
-  backend "s3" {
-    bucket         = "shopvue-terraform-state"
-    key            = "production/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "shopvue-terraform-locks"
-    encrypt        = true
-  }
+  # backend "s3" {
+  #   bucket         = "shopvue-terraform-state"
+  #   key            = "production/terraform.tfstate"
+  #   region         = "us-east-1"
+  #   dynamodb_table = "shopvue-terraform-locks"
+  #   encrypt        = true
+  # }
 }
 
 provider "aws" {
@@ -136,4 +136,6 @@ module "ecs" {
 
   secret_db_password_arn = module.secrets.db_password_arn
   secret_jwt_arn         = module.secrets.jwt_secret_arn
+
+  alb_dns_name = module.alb.alb_dns_name
 }

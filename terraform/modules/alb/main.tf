@@ -1,6 +1,5 @@
 # terraform/modules/alb/main.tf
 
-# ── Security Group ─────────────────────────────────────────────────────────────
 resource "aws_security_group" "alb" {
   name        = "${var.project}-${var.environment}-alb-sg"
   description = "Allow HTTP/HTTPS from internet"
@@ -30,7 +29,6 @@ resource "aws_security_group" "alb" {
   tags = { Name = "${var.project}-${var.environment}-alb-sg" }
 }
 
-# ── Application Load Balancer ──────────────────────────────────────────────────
 resource "aws_lb" "main" {
   name               = "${var.project}-${var.environment}-alb"
   internal           = false
@@ -61,10 +59,18 @@ resource "random_id" "suffix" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "alb_logs" {
   bucket = aws_s3_bucket.alb_logs.id
+
   rule {
     id     = "expire-old-logs"
     status = "Enabled"
-    expiration { days = 30 }
+
+    filter {
+      prefix = ""
+    }
+
+    expiration {
+      days = 30
+    }
   }
 }
 
@@ -109,13 +115,12 @@ resource "aws_lb_target_group" "backend" {
   tags = { Name = "${var.project}-backend-tg" }
 }
 
-# ── HTTP Listener — path-based routing ────────────────────────────────────────
+# ── HTTP Listener ──────────────────────────────────────────────────────────────
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
 
-  # Default → frontend
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.frontend.arn
@@ -138,8 +143,3 @@ resource "aws_lb_listener_rule" "api" {
     }
   }
 }
-
-# NOTE: For HTTPS (recommended for production), add:
-# 1. An ACM certificate
-# 2. An aws_lb_listener on port 443 with the certificate
-# 3. A redirect rule on port 80 → 443

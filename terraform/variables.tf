@@ -27,7 +27,7 @@ variable "vpc_cidr" {
 variable "availability_zones" {
   description = "List of AZs to use (must be ≥ 2 for RDS)"
   type        = list(string)
-  default     = ["eu-west-1a", "eu-west-1b"]
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "public_subnet_cidrs" {

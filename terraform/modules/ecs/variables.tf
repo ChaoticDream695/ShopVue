@@ -36,3 +36,5 @@ variable "db_username" { type = string }
 
 variable "secret_db_password_arn" { type = string }
 variable "secret_jwt_arn"         { type = string }
+
+variable "alb_dns_name" { type = string }

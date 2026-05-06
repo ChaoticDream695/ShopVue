@@ -67,7 +67,7 @@ brew install jq
 Before running Terraform, create an S3 bucket and DynamoDB table for remote state:
 
 ```bash
-AWS_REGION="eu-west-1"   # change to your preferred region
+AWS_REGION="us-east-1"   # change to your preferred region
 PROJECT="shopvue"
 
 # S3 bucket for state
@@ -135,9 +135,9 @@ terraform apply
 
 When complete, note the outputs:
 ```
-alb_dns_name        = "shopvue-production-alb-XXXXXXXX.eu-west-1.elb.amazonaws.com"
-ecr_backend_url     = "123456789.dkr.ecr.eu-west-1.amazonaws.com/shopvue-production-backend"
-ecr_frontend_url    = "123456789.dkr.ecr.eu-west-1.amazonaws.com/shopvue-production-frontend"
+alb_dns_name        = "shopvue-production-alb-XXXXXXXX.us-east-1.elb.amazonaws.com"
+ecr_backend_url     = "123456789.dkr.ecr.us-east-1.amazonaws.com/shopvue-production-backend"
+ecr_frontend_url    = "123456789.dkr.ecr.us-east-1.amazonaws.com/shopvue-production-frontend"
 ecs_cluster_name    = "shopvue-production"
 ```
 
@@ -172,7 +172,7 @@ chmod +x scripts/migrate.sh
 
 Optionally seed demo data (runs inside the ECS task via exec):
 ```bash
-AWS_REGION=eu-west-1 PROJECT=shopvue ENVIRONMENT=production \
+AWS_REGION=us-east-1 PROJECT=shopvue ENVIRONMENT=production \
   aws ecs execute-command \
     --cluster shopvue-production \
     --task $(aws ecs list-tasks --cluster shopvue-production \
@@ -199,7 +199,7 @@ The pipeline in `.github/workflows/deploy.yml` automatically:
 |-------------------------|-----------------------------------------------------|
 | `AWS_ACCESS_KEY_ID`     | IAM user access key (see below)                     |
 | `AWS_SECRET_ACCESS_KEY` | IAM user secret key                                 |
-| `AWS_REGION`            | e.g. `eu-west-1`                                    |
+| `AWS_REGION`            | e.g. `us-east-1`                                    |
 | `AWS_ACCOUNT_ID`        | Your 12-digit AWS account ID                        |
 | `ECR_BACKEND_REPO`      | `shopvue-production-backend`                        |
 | `ECR_FRONTEND_REPO`     | `shopvue-production-frontend`                       |
@@ -313,7 +313,7 @@ terraform destroy
 
 ---
 
-## Estimated Monthly Cost (eu-west-1)
+## Estimated Monthly Cost (us-east-1)
 
 | Resource                        | Spec            | Est. Cost/mo |
 |---------------------------------|-----------------|--------------|

@@ -16,7 +16,7 @@
 set -euo pipefail
 
 # ── Config — edit these to match your terraform outputs ───────────────────────
-AWS_REGION="${AWS_REGION:-eu-west-1}"
+AWS_REGION="${AWS_REGION:-us-east-1}"
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 PROJECT="${PROJECT:-shopvue}"
 ENVIRONMENT="${ENVIRONMENT:-production}"

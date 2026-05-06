@@ -34,12 +34,12 @@ resource "aws_db_subnet_group" "main" {
 
 # ── Parameter Group ────────────────────────────────────────────────────────────
 resource "aws_db_parameter_group" "main" {
-  name   = "${var.project}-${var.environment}-pg15"
-  family = "postgres15"
+  name   = "${var.project}-${var.environment}-pg18"
+  family = "postgres18"
 
   parameter {
     name  = "log_connections"
-    value = "1"
+    value = "all"
   }
 
   parameter {
@@ -55,7 +55,7 @@ resource "aws_db_instance" "main" {
   identifier = "${var.project}-${var.environment}-postgres"
 
   engine         = "postgres"
-  engine_version = "15.5"
+  engine_version = "18"
   instance_class = var.db_instance_class
 
   db_name  = var.db_name
